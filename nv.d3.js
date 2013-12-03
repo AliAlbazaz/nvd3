@@ -9404,7 +9404,7 @@ nv.models.multiChart = function() {
 
   var margin = {top: 30, right: 20, bottom: 50, left: 60},
       color = d3.scale.category20().range(),
-      width = null, 
+      width = null,
       height = null,
       showLegend = true,
       tooltips = true,
@@ -9412,6 +9412,7 @@ nv.models.multiChart = function() {
         return '<h3>' + key + '</h3>' +
                '<p>' +  y + ' at ' + x + '</p>'
       },
+      interpolate = 'monotone',  // controls lines interpolation
       x,
       y,
       yDomain1,
@@ -9509,7 +9510,7 @@ nv.models.multiChart = function() {
         legend.width( availableWidth / 2 );
 
         g.select('.legendWrap')
-            .datum(data.map(function(series) { 
+            .datum(data.map(function(series) {
               series.originalKey = series.originalKey === undefined ? series.key : series.originalKey;
               series.key = series.originalKey + (series.yAxis == 1 ? '' : ' (right axis)');
               return series;
@@ -9530,7 +9531,7 @@ nv.models.multiChart = function() {
       lines1
         .width(availableWidth)
         .height(availableHeight)
-        .interpolate("monotone")
+        .interpolate(interpolate)
         .color(data.map(function(d,i) {
           return d.color || color[i % color.length];
         }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 1 && data[i].type == 'line'}));
@@ -9538,7 +9539,7 @@ nv.models.multiChart = function() {
       lines2
         .width(availableWidth)
         .height(availableHeight)
-        .interpolate("monotone")
+        .interpolate(interpolate)
         .color(data.map(function(d,i) {
           return d.color || color[i % color.length];
         }).filter(function(d,i) { return !data[i].disabled && data[i].yAxis == 2 && data[i].type == 'line'}));
@@ -9617,7 +9618,7 @@ nv.models.multiChart = function() {
 
       if(dataLines1.length){d3.transition(lines1Wrap).call(lines1);}
       if(dataLines2.length){d3.transition(lines2Wrap).call(lines2);}
-      
+
 
 
       xAxis
@@ -9648,10 +9649,10 @@ nv.models.multiChart = function() {
           .style('opacity', series2.length ? 1 : 0)
           .attr('transform', 'translate(' + x.range()[1] + ',0)');
 
-      legend.dispatch.on('stateChange', function(newState) { 
+      legend.dispatch.on('stateChange', function(newState) {
         chart.update();
       });
-     
+
       dispatch.on('tooltipShow', function(e) {
         if (tooltips) showTooltip(e, that.parentNode);
       });
@@ -9787,6 +9788,12 @@ nv.models.multiChart = function() {
     getY = _;
     lines1.y(_);
     bars1.y(_);
+    return chart;
+  };
+
+  chart.interpolate = function(_) {
+    if (!arguments.length) return interpolate;
+    interpolate = _;
     return chart;
   };
 
